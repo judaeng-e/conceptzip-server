@@ -3,10 +3,10 @@ const multer = require("multer");
 const path = require("path");
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 
-// ✅ CORS 허용 (이거 추가)
+// ✅ CORS 허용
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -16,7 +16,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
 
 
 // 이미지 저장 위치 설정
@@ -31,7 +30,6 @@ const storage = multer.diskStorage({
   }
 });
 
-
 const upload = multer({ storage });
 
 // 정적 파일 제공
@@ -45,7 +43,6 @@ app.post("/api/upload-image", upload.single("image"), (req, res) => {
   });
 });
 
-
 app.listen(PORT, () => {
-  console.log(`서버 실행 중 → http://localhost:${PORT}`);
+  console.log(`서버 실행 중 → PORT ${PORT}`);
 });
