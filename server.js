@@ -1,10 +1,14 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+if (!fs.existsSync("products")) {
+  fs.mkdirSync("products", { recursive: true });
+}
 
 // ✅ CORS 허용
 app.use((req, res, next) => {
@@ -35,13 +39,23 @@ const upload = multer({ storage });
 // 정적 파일 제공
 app.use("/products", express.static(path.join(__dirname, "products")));
 
-// 업로드 API
 app.post("/api/upload-image", upload.single("image"), (req, res) => {
-  res.json({
-    filename: req.file.filename,
-    url: `/products/${req.file.filename}`
-  });
+  try {
+    if (!req.file) {
+      console.error("❌ req.file 없음");
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    res.json({
+      filename: req.file.filename,
+      url: `/products/${req.file.filename}`
+    });
+  } catch (err) {
+    console.error("🔥 업로드 에러:", err);
+    res.status(500).json({ error: "Upload failed" });
+  }
 });
+
 
 app.listen(PORT, () => {
   console.log(`서버 실행 중 → PORT ${PORT}`);
